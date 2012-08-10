@@ -14,7 +14,6 @@
 
 //---------------------------------Include Files-------------------------------
 #include "systemc.h"
-#include <scv.h>
 #include <stdlib.h>
 //-----------------------------------------------------------------------------
 
@@ -53,7 +52,7 @@ SC_MODULE(tx_component) {
    // Internal values
    data_t dat; // Data value use
    dat.generate_values;
-   sc_uint < 10 > data_num = rand()%(MAX_NUMBER_DATA-MIN_NUMBER_DATA)+MIN_NUMBER_DATA;
+   sc_uint < 10 > data_num = rand()%(MAX_NUMBER_DATA-MIN_NUMBER_DATA)+MIN_NUMBER_DATA; // may be in testbench and passed in a port or other way
 
    // Declare component behaviour
    void behaviour_tx () {
@@ -61,19 +60,17 @@ SC_MODULE(tx_component) {
          write.write('0');
          data_in.write(0x00);
       } else {
-         while (data_num != 0) { // procedure while still data to send
-            if(dat.delay == 0) { // send pkt
-               write.write('1');
-               data_in.write((sc_lv)dat.data);
-               // reduce data number
-               data_num = data_num - 1;
-               // generate new values
-               data.generate_values;
-            } else { // reduce delay and wait 1 clk
-               write.write('0');
-               // reduce delay
-               data.delay = data.delay - 1;
-            }
+         if(dat.delay == 0) { // send pkt
+            write.write('1');
+            data_in.write((sc_lv < 8 >)dat.data);
+            // reduce data number
+            data_num = data_num - 1;
+            // generate new values
+            data.generate_values;
+         } else { // reduce delay and wait 1 clk
+            write.write('0');
+            // reduce delay
+            data.delay = data.delay - 1;
          }
       }
    }
